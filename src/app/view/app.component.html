@@ -1,0 +1,27 @@
+<div class="container">
+  <div class="row">
+    <div class="col-2 hangman">
+      <ng-container [ngTemplateOutlet]="hangman" [ngTemplateOutletContext]="{mistakes: (gameService.mistakes)}"></ng-container>
+  </div>
+  <div class="row">
+    <div class="col-12 d-flex center-flex justify-content-center result">
+      <span>{{gameService.displayWordAnswer}}</span>
+    </div>
+  </div>
+  <div class="row letters-button">
+    <div class="col-6 letter-container m-auto">
+      <app-letter-button *ngFor="let letter of (gameService.alphabet$ | async)" (buttonClicked)="clickedLetter($event)" [letter]="letter"></app-letter-button>
+    </div>
+  </div>
+</div>
+
+<ng-template #hangman let-mistake="mistakes">
+  <div class="man" [ngClass]="{'hide': mistake !== 6}">
+    <img src="../../assets/man.png" alt="hangman">
+  </div>
+  <div class="block line" [ngClass]="{'hide': mistake < 5}"></div>
+  <div class="block bridge" [ngClass]="{'hide':mistake < 4}"></div>
+  <div class="block hand" [ngClass]="{'hide': mistake < 3}"></div>
+  <div class="block tower" [ngClass]="{'hide': mistake < 2}"></div>
+  <div class="block floor" [ngClass]="{'hide': mistake < 1}"></div>
+</ng-template>

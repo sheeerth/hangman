@@ -1,0 +1,75 @@
+@mixin main ($variables) {
+  .result {
+    span {
+      font-size: 26px;
+      letter-spacing: 10px;
+    }
+  }
+
+  .letters-button {
+    margin-top: 16px;
+
+    .letter-container {
+      text-align: center;
+    }
+  }
+
+  .hangman {
+    position: relative;
+    margin: 32px auto 48px;
+    height: 300px;
+  }
+
+  .block {
+    background: #000;
+
+    &.floor {
+      width: 100px;
+      height: 16px;
+      position: absolute;
+      bottom: 0;
+    }
+
+    &.tower {
+      width: 16px;
+      height: 284px;
+      margin-left: 32px;
+      position: absolute;
+      bottom: 16px;
+    }
+
+    &.hand {
+      width: 150px;
+      height: 16px;
+      margin-left: 32px;
+    }
+
+    &.bridge {
+      width: 16px;
+      height: 64px;
+      position: absolute;
+      top: 0;
+      left: 64px;
+      transform: rotate(45deg);
+    }
+
+    &.line {
+      height: 48px;
+      width: 8px;
+      position: absolute;
+      top: 16px;
+      left: 180px;
+    }
+  }
+
+  .man {
+    position: absolute;
+    top:32px;
+    left: 159px;
+    z-index: 1;
+  }
+
+  .hide {
+    display: none;
+  }
+}

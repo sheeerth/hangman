@@ -1,0 +1,13 @@
+@mixin result-modal($variables) {
+  .result-modal {
+    display: flex;
+    flex-direction: column;
+
+    &.result-success, &.result-error {
+      .description {
+        margin-bottom: 16px;
+        display: block;
+      }
+    }
+  }
+}

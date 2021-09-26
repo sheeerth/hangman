@@ -1,0 +1,9 @@
+@mixin letter-button ($variables) {
+  .btn-letter {
+    margin: 8px !important;
+
+    .btn-text {
+      font-size: 28px;
+    }
+  }
+}
