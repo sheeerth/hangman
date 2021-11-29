@@ -1,7 +1,8 @@
-<div class="container">
+<div class="container" *ngIf="gameService.wordOriginal else start_game">
   <div class="row">
     <div class="col-2 hangman">
       <ng-container [ngTemplateOutlet]="hangman" [ngTemplateOutletContext]="{mistakes: (gameService.mistakes)}"></ng-container>
+    </div>
   </div>
   <div class="row">
     <div class="col-12 d-flex center-flex justify-content-center result">
@@ -10,7 +11,7 @@
   </div>
   <div class="row letters-button">
     <div class="col-6 letter-container m-auto">
-      <app-letter-button *ngFor="let letter of (gameService.alphabet$ | async)" (buttonClicked)="clickedLetter($event)" [letter]="letter"></app-letter-button>
+      <app-letter-button *ngFor="let letter of gameService.alphabet" (buttonClicked)="clickedLetter($event)" [letter]="letter"></app-letter-button>
     </div>
   </div>
 </div>
@@ -24,4 +25,21 @@
   <div class="block hand" [ngClass]="{'hide': mistake < 3}"></div>
   <div class="block tower" [ngClass]="{'hide': mistake < 2}"></div>
   <div class="block floor" [ngClass]="{'hide': mistake < 1}"></div>
+</ng-template>
+
+
+
+
+<ng-template #start_game>
+  <div class="bg-gray-50 h-full">
+    <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center justify-center flex-col h-full">
+      <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
+        <div class="ml-3 inline-flex rounded-md shadow">
+          <button class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50" (click)="startGame()">
+            Rozpocznij grę
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </ng-template>

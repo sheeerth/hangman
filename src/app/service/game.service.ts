@@ -1,68 +1,51 @@
 import {Injectable} from '@angular/core';
-import {ApiService} from './api.service';
-import {Observable, Subject} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {EventType, Letter, Word, WordArray} from '../models';
-import {MAX_POSSIBILITY_WINS, POSSIBILITY_MISTAKES} from '../data/constrain';
+import {Subject} from 'rxjs';
+import {EventType, Letter, Word} from '../models';
+import {POSSIBILITY_MISTAKES} from '../data/constrain';
+import {WebsocketClientService} from './websocket-client.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
-  private wordOriginal: Word | undefined;
-  private roundCounter = 0;
-  private wordsArray: WordArray | undefined;
-
+  wordOriginal: Word | undefined;
+  alphabet: Letter[] = [...'ABCDEFGHIJKLMNOPQRSTUWYZ'.split('')];
   displayWordAnswer: Word = '';
   mistakes = 0;
-  alphabet$: Observable<Letter[]> = this.apiService.getAlphabet().pipe(map(value => value.split('')));
   resultBus$: Subject<EventType> = new Subject();
 
-  constructor(private apiService: ApiService) { }
+  constructor(private websocketClient: WebsocketClientService) { }
 
-  startGame(): void {
-    this.apiService.getWord().subscribe((data) => {
-      this.wordsArray = data;
+  startGame(word: string): void {
+    this.wordOriginal = word;
 
-      this.setupRoundAndGame(true);
-    });
+    this.setupRound();
   }
 
-  nextRound(): void {
-    this.setupRoundAndGame(false);
-  }
-
-  private setupRoundAndGame(newGame: boolean): void {
-    this.roundCounter = newGame ? 0 : this.roundCounter++;
-
-    if (this.roundCounter === MAX_POSSIBILITY_WINS) {
-      this.resultBus$.next(EventType.GAME_END);
-
-      return;
+  private setupRound(): void {
+    if (!this.wordOriginal) {
+      return; // TODO: error
     }
 
-    this.mistakes = 0;
-
-    if (!this.wordsArray) {
-      return;
-    }
-
-    this.wordOriginal = this.wordsArray[this.roundCounter];
     this.displayWordAnswer = this.wordOriginal.split('').map(() => '*').join('');
   }
 
   letterClicked(letter: Letter): void {
     if (!this.checkWord(letter) && this.mistakes++ === POSSIBILITY_MISTAKES - 1) {
+      // TODO: info o bledzie
       this.resultBus$.next(EventType.ERROR);
     }
 
     if (!this.displayWordAnswer.includes('*')) {
+      // TODO: o końcu gry
       this.resultBus$.next(EventType.SUCCESS);
     }
   }
 
   private checkWord(event: Letter): boolean {
     if (event === '' || !this.wordOriginal || this.displayWordAnswer.includes(event.toLowerCase())) {
+      this.websocketClient.sendMistake();
+
       return false;
     }
 
@@ -75,6 +58,8 @@ export class GameService {
     });
 
     if (positionArray.length === 0) {
+      this.websocketClient.sendMistake();
+
       return false;
     }
 
@@ -84,6 +69,8 @@ export class GameService {
 
       return stringArray.join('');
     }, this.displayWordAnswer);
+
+    this.websocketClient.sendLetter(event);
 
     return true;
   }

@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import {WebsocketClientService} from '../../../service/websocket-client.service';
+import {SocketEventsListener, WebsocketClientService} from '../../../service/websocket-client.service';
+import {filter, switchMap, take} from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-main-menu',
@@ -10,7 +12,18 @@ export class MainMenuComponent {
   gameID = '';
   error = '';
 
-  constructor(private websocketClient: WebsocketClientService) { }
+  private socketListener = this.websocketClient.socketEvents;
+
+  constructor(private websocketClient: WebsocketClientService, private router: Router) {
+    this.socketListener.pipe(
+      filter(message => message.event === SocketEventsListener.ROOM_CREATED),
+      take(1),
+    ).subscribe(message => this.websocketClient.joinToRoom(message.data));
+
+    this.socketListener.pipe(
+      filter(message => message.event === SocketEventsListener.ROOM_JOINED),
+      take(1)).subscribe(message => this.router.navigate(['/game'], {queryParams: {game_id: message.data}}));
+  }
 
   joinToRoom(): void {
     if (!this.gameID) {
