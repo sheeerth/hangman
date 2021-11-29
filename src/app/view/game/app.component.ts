@@ -1,8 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
-import {ResultModalComponent} from '../components/result-modal/result-modal.component';
-import {EventType, Letter, ModalTypeEnum} from '../models';
-import {GameService} from '../service/game.service';
+import {ResultModalComponent} from '../../components/result-modal/result-modal.component';
+import {EventType, Letter, ModalTypeEnum} from '../../models';
+import {GameService} from '../../service/game.service';
 import {take} from 'rxjs/operators';
 import {Subscription} from 'rxjs';
 

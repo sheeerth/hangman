@@ -1,7 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 @import './../node_modules/bootstrap/scss/bootstrap.scss';
 @import 'styles/variabless';
-@import 'app/view/app.component';
+@import 'app/view/game/app.component';
 @import './app/components/components';
 
 html, body { height: 100%; }

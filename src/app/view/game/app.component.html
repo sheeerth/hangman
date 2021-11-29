@@ -17,7 +17,7 @@
 
 <ng-template #hangman let-mistake="mistakes">
   <div class="man" [ngClass]="{'hide': mistake !== 6}">
-    <img src="../../assets/man.png" alt="hangman">
+    <img src="../../../assets/man.png" alt="hangman">
   </div>
   <div class="block line" [ngClass]="{'hide': mistake < 5}"></div>
   <div class="block bridge" [ngClass]="{'hide':mistake < 4}"></div>
