@@ -4,7 +4,7 @@ import {ResultModalComponent} from '../../components/result-modal/result-modal.c
 import {EventType, Letter, ModalTypeEnum} from '../../models';
 import {GameService} from '../../service/game.service';
 import {filter, map, take, tap} from 'rxjs/operators';
-import {Subscription} from 'rxjs';
+import {Subject, Subscription} from 'rxjs';
 import {ActivatedRoute, Router} from '@angular/router';
 import {SocketEventsListener, WebsocketClientService} from '../../service/websocket-client.service';
 
@@ -30,6 +30,8 @@ export class AppComponent implements OnInit, OnDestroy {
         this.gameService.startGame(message.data);
         break;
       case SocketEventsListener.MISTAKE:
+        this.letterHistory.push(message.data);
+
         this.gameService.updateMistake();
         break;
       case SocketEventsListener.WIN:
@@ -39,18 +41,32 @@ export class AppComponent implements OnInit, OnDestroy {
   }));
   private userInGameArray: any[] = [];
   userInGame$ = this.websocketClient.socketEvents.pipe(
-    filter(message => message.event === SocketEventsListener.USER_JOINED || message.event === SocketEventsListener.USERS),
+    filter(message =>
+      message.event === SocketEventsListener.USER_JOINED ||
+      message.event === SocketEventsListener.USERS ||
+      message.event === SocketEventsListener.USER_OUT),
     map(message => {
-      if (message.event === SocketEventsListener.USERS) {
-        this.userInGameArray = message.data;
-      } else {
-        this.userInGameArray = [...this.userInGameArray, message.data];
+      switch (message.event) {
+        case SocketEventsListener.USERS:
+          this.userInGameArray = message.data;
+          break;
+        case SocketEventsListener.USER_JOINED:
+          this.userInGameArray = [...this.userInGameArray, message.data];
+          break;
+        case SocketEventsListener.USER_OUT:
+          const copyArray = [...this.userInGameArray];
+
+          copyArray.splice(this.userInGameArray.findIndex((user) => user === message.data), 1);
+
+          this.userInGameArray = [...copyArray];
+          break;
       }
 
       return this.userInGameArray;
     })
   );
 
+  letterHistory: any[] = [];
   isAdmin: boolean = this.gameService.isAdmin;
   private dialogRef?: MatDialogRef<ResultModalComponent, any>;
 
@@ -78,6 +94,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.subMenage.add(this.socketEvents.subscribe());
 
     this.subMenage.add(this.result$.subscribe((type: EventType) => {
+      this.letterHistory = [];
+
       switch (type) {
         case EventType.SUCCESS:
           this.websocketClient.winGame();

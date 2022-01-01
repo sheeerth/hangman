@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   answers: './assets/answer.json',
   letters: './assets/letters.json',
-  webSocketUrl: 'http://localhost:3005'
+  webSocketUrl: 'http://192.168.1.48:3005/'
 };
 
 /*

@@ -12,6 +12,7 @@ export enum SocketEventsListener {
   LETTER = 'letter',
   MISTAKE = 'mistake',
   USER_JOINED = 'user_join',
+  USER_OUT = 'user_out',
   USERS = 'users',
   WIN = 'win',
 }
@@ -62,8 +63,8 @@ export class WebsocketClientService {
     this.socket.emit(SocketEventsEmitter.SET_LETTER, letter);
   }
 
-  sendMistake(): void {
-    this.socket.emit(SocketEventsEmitter.SET_MISTAKE);
+  sendMistake(letter: string): void {
+    this.socket.emit(SocketEventsEmitter.SET_MISTAKE, letter);
   }
 
   winGame(): void {

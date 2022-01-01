@@ -16,6 +16,9 @@
       </div>
     </div>
   </div>
+  <div>
+    {{ letterHistory | json }}
+  </div>
   <div class="absolute left-0 top-0 p-4 shadow h-full overflow-auto">
     <ng-container [ngTemplateOutlet]="userInGame"></ng-container>
   </div>

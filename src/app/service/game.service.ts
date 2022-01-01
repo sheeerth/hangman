@@ -43,7 +43,7 @@ export class GameService {
   letterClicked(letter: Letter): void {
     const letterCheck = this.checkWord(letter);
 
-    letterCheck ? this.websocketClient.sendLetter(letter) : this.websocketClient.sendMistake();
+    letterCheck ? this.websocketClient.sendLetter(letter) : this.websocketClient.sendMistake(letter);
 
     if (!this.displayWordAnswer.includes('*')) {
       // TODO: o końcu gry
