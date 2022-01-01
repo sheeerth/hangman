@@ -1,7 +1,5 @@
-@import './letter-button/letter-button.component';
 @import './result-modal/result-modal.component';
 
 @mixin components($variables) {
-  @include letter-button($variables);
   @include result-modal($variables);
 }

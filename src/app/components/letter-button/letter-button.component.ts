@@ -2,8 +2,7 @@ import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@
 
 @Component({
   selector: 'app-letter-button',
-  template: '<button (click)="buttonClickedEvent()"  mat-stroked-button class="btn-letter"><span class="btn-text">{{letter}}</span></button>',
-  styleUrls: ['./letter-button.component.scss'],
+  template: '<button (click)="buttonClickedEvent()"  mat-stroked-button class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-3xl font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50"><span>{{letter}}</span></button>',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LetterButtonComponent {

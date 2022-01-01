@@ -1,5 +1,7 @@
 @mixin main ($variables) {
   .result {
+    width: 460px;
+
     span {
       font-size: 26px;
       letter-spacing: 10px;
@@ -11,17 +13,18 @@
 
     .letter-container {
       text-align: center;
+      width: 460px;
     }
   }
 
   .hangman {
     position: relative;
-    margin: 32px auto 48px;
     height: 300px;
+    width: 460px;
   }
 
   .block {
-    background: #000;
+    //background: #000; // confllict
 
     &.floor {
       width: 100px;
