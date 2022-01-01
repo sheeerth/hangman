@@ -8,6 +8,8 @@ import {WebsocketClientService} from './websocket-client.service';
   providedIn: 'root'
 })
 export class GameService {
+  #isAdmin = false;
+
   wordOriginal: Word | undefined;
   alphabet: Letter[] = [...'ABCDEFGHIJKLMNOPQRSTUWYZ'.split('')];
   displayWordAnswer: Word = '';
@@ -30,11 +32,18 @@ export class GameService {
     this.displayWordAnswer = this.wordOriginal.split('').map(() => '*').join('');
   }
 
+  set isAdmin(b: boolean) {
+    this.#isAdmin = b;
+  }
+
+  get isAdmin(): boolean {
+    return this.#isAdmin;
+  }
+
   letterClicked(letter: Letter): void {
-    if (!this.checkWord(letter) && this.mistakes++ === POSSIBILITY_MISTAKES - 1) {
-      // TODO: info o bledzie
-      this.resultBus$.next(EventType.ERROR);
-    }
+    const letterCheck = this.checkWord(letter);
+
+    letterCheck ? this.websocketClient.sendLetter(letter) : this.websocketClient.sendMistake();
 
     if (!this.displayWordAnswer.includes('*')) {
       // TODO: o końcu gry
@@ -42,10 +51,22 @@ export class GameService {
     }
   }
 
+  letterFromWS(letter: string): void {
+    this.checkWord(letter);
+  }
+
+  updateMistake(): void {
+    if (this.mistakes++ === POSSIBILITY_MISTAKES - 1) {
+      this.resultBus$.next(EventType.ERROR);
+    }
+  }
+
+  resetMistakes(): void {
+    this.mistakes = 0;
+  }
+
   private checkWord(event: Letter): boolean {
     if (event === '' || !this.wordOriginal || this.displayWordAnswer.includes(event.toLowerCase())) {
-      this.websocketClient.sendMistake();
-
       return false;
     }
 
@@ -58,8 +79,6 @@ export class GameService {
     });
 
     if (positionArray.length === 0) {
-      this.websocketClient.sendMistake();
-
       return false;
     }
 
@@ -69,8 +88,6 @@ export class GameService {
 
       return stringArray.join('');
     }, this.displayWordAnswer);
-
-    this.websocketClient.sendLetter(event);
 
     return true;
   }

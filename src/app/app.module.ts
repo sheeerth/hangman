@@ -9,11 +9,13 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {AppRoutingModule} from './app-routing.module';
 import { MainComponent } from './view/main/main.component';
 import {MenuModule} from './view/menu/menu.module';
+import { HangmanCanvasDirective } from './view/game/hangman-canvas.directive';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MainComponent
+    MainComponent,
+    HangmanCanvasDirective
   ],
   imports: [
     BrowserModule,

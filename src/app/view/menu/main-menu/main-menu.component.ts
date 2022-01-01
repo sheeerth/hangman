@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import {SocketEventsListener, WebsocketClientService} from '../../../service/websocket-client.service';
-import {filter, switchMap, take} from 'rxjs/operators';
+import {filter, take} from 'rxjs/operators';
 import { Router } from '@angular/router';
+import {GameService} from '../../../service/game.service';
 
 @Component({
   selector: 'app-main-menu',
   templateUrl: './main-menu.component.html',
-  styleUrls: ['./main-menu.component.scss']
 })
 export class MainMenuComponent {
   gameID = '';
@@ -14,7 +14,7 @@ export class MainMenuComponent {
 
   private socketListener = this.websocketClient.socketEvents;
 
-  constructor(private websocketClient: WebsocketClientService, private router: Router) {
+  constructor(private websocketClient: WebsocketClientService, private router: Router, private gameService: GameService) {
     this.socketListener.pipe(
       filter(message => message.event === SocketEventsListener.ROOM_CREATED),
       take(1),
@@ -40,5 +40,6 @@ export class MainMenuComponent {
 
   createRoom(): void {
     this.websocketClient.createRoom();
+    this.gameService.isAdmin = true ;
   }
 }

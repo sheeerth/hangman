@@ -10,7 +10,10 @@ export enum SocketEventsListener {
   ROOM_JOINED = 'room_joined',
   WORD = 'word',
   LETTER = 'letter',
-  MISTAKE = 'mistake'
+  MISTAKE = 'mistake',
+  USER_JOINED = 'user_join',
+  USERS = 'users',
+  WIN = 'win',
 }
 
 export enum SocketEventsEmitter {
@@ -19,7 +22,7 @@ export enum SocketEventsEmitter {
   GET_WORD = 'get_word',
   SET_LETTER = 'set_letter',
   SET_MISTAKE = 'set_mistake',
-
+  WIN_GAME = 'win_game',
 }
 
 @Injectable({
@@ -27,6 +30,7 @@ export enum SocketEventsEmitter {
 })
 export class WebsocketClientService {
   socketEvents: Subject<{event: SocketEventsListener, data: any}> = new Subject();
+  connectedWithRoom = false;
 
   private socket: Socket = io(environment.webSocketUrl);
 
@@ -39,7 +43,11 @@ export class WebsocketClientService {
   }
 
   joinToRoom(ID: string): void {
-    this.socket.emit(SocketEventsEmitter.JOIN_TO_ROOM, ID);
+    if (!this.connectedWithRoom) {
+      this.socket.emit(SocketEventsEmitter.JOIN_TO_ROOM, ID);
+    }
+
+    this.connectedWithRoom = true;
   }
 
   createRoom(): void {
@@ -56,5 +64,9 @@ export class WebsocketClientService {
 
   sendMistake(): void {
     this.socket.emit(SocketEventsEmitter.SET_MISTAKE);
+  }
+
+  winGame(): void {
+    this.socket.emit(SocketEventsEmitter.WIN_GAME);
   }
 }

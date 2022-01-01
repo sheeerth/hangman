@@ -6,4 +6,5 @@ export enum ModalTypeEnum {
 
 export interface ModalData {
   type: ModalTypeEnum;
+  isAdmin: boolean;
 }

@@ -1,20 +1,14 @@
 <ng-container [ngSwitch]="data.type">
   <ng-container *ngSwitchCase="'SUCCESS'">
     <div class="result-modal result-success">
-      <span class="description">Brawo odgadłeś wyraz przejdź do nastepnej rundy</span>
-      <button mat-button (click)="closeModal()"><span class="btn-text">Dalej</span></button>
+      <span class="description">Brawo wygrałeś. Czy chcesz zacząć od nowa?</span>
+      <button *ngIf="data.isAdmin" mat-button (click)="closeModal()"><span class="btn-text">Dalej</span></button>
     </div>
   </ng-container>
   <ng-container *ngSwitchCase="'ERROR'">
     <div class="result-modal result-error">
       <span class="description">Niestety Ci sie nie udało odgadnać</span>
-      <button mat-button (click)="closeModal()"><span class="btn-text">Zacznij od nowa</span></button>
-    </div>
-  </ng-container>
-  <ng-container *ngSwitchCase="'GAME_END'">
-    <div class="result-modal result-success">
-      <span class="description">GRATULACJE WYGRAŁES</span>
-      <button mat-button (click)="closeModal()"><span class="btn-text">Zacznij od nowa</span></button>
+      <button *ngIf="data.isAdmin" mat-button (click)="closeModal()"><span class="btn-text">Zacznij od nowa</span></button>
     </div>
   </ng-container>
 </ng-container>

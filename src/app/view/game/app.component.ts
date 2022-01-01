@@ -1,9 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {MatDialog} from '@angular/material/dialog';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {ResultModalComponent} from '../../components/result-modal/result-modal.component';
-import {Letter, ModalTypeEnum} from '../../models';
+import {EventType, Letter, ModalTypeEnum} from '../../models';
 import {GameService} from '../../service/game.service';
-import {take, tap} from 'rxjs/operators';
+import {filter, map, take, tap} from 'rxjs/operators';
 import {Subscription} from 'rxjs';
 import {ActivatedRoute, Router} from '@angular/router';
 import {SocketEventsListener, WebsocketClientService} from '../../service/websocket-client.service';
@@ -14,22 +14,45 @@ import {SocketEventsListener, WebsocketClientService} from '../../service/websoc
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
+  gameID = '';
   private result$ = this.gameService.resultBus$;
   private subMenage: Subscription = new Subscription();
   private socketEvents = this.websocketClient.socketEvents.pipe(tap(message => {
     switch (message.event) {
       case SocketEventsListener.LETTER:
-        console.log('letter', message.data);
+        this.gameService.letterFromWS(message.data);
         break;
       case SocketEventsListener.WORD:
+        if (this.dialogRef) {
+          this.dialogRef.close();
+        }
+
         this.gameService.startGame(message.data);
-        console.log('word', message.data);
         break;
       case SocketEventsListener.MISTAKE:
-        console.log('mistake', message.data);
+        this.gameService.updateMistake();
+        break;
+      case SocketEventsListener.WIN:
+        this.openDialog(ModalTypeEnum.success);
         break;
     }
   }));
+  private userInGameArray: any[] = [];
+  userInGame$ = this.websocketClient.socketEvents.pipe(
+    filter(message => message.event === SocketEventsListener.USER_JOINED || message.event === SocketEventsListener.USERS),
+    map(message => {
+      if (message.event === SocketEventsListener.USERS) {
+        this.userInGameArray = message.data;
+      } else {
+        this.userInGameArray = [...this.userInGameArray, message.data];
+      }
+
+      return this.userInGameArray;
+    })
+  );
+
+  isAdmin: boolean = this.gameService.isAdmin;
+  private dialogRef?: MatDialogRef<ResultModalComponent, any>;
 
   constructor(
     private route: ActivatedRoute,
@@ -49,43 +72,40 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.gameID = this.route.snapshot.queryParams.game_id;
+
+    this.websocketClient.joinToRoom(this.gameID);
     this.subMenage.add(this.socketEvents.subscribe());
-    //
-    // this.subMenage.add(this.result$.subscribe((type: EventType) => {
-    //   switch (type) {
-    //     case EventType.SUCCESS:
-    //       this.openDialog(ModalTypeEnum.success);
-    //       break;
-    //     case EventType.ERROR:
-    //       this.openDialog(ModalTypeEnum.error);
-    //       break;
-    //     case EventType.GAME_END:
-    //       this.openDialog(ModalTypeEnum.game_end);
-    //       break;
-    //   }
-    // }));
+
+    this.subMenage.add(this.result$.subscribe((type: EventType) => {
+      switch (type) {
+        case EventType.SUCCESS:
+          this.websocketClient.winGame();
+          break;
+        case EventType.ERROR:
+          this.openDialog(ModalTypeEnum.error);
+          break;
+        case EventType.GAME_END:
+          this.openDialog(ModalTypeEnum.game_end);
+          break;
+      }
+    }));
   }
 
   ngOnDestroy(): void {
     this.subMenage.unsubscribe();
   }
 
-  // private openDialog(type: ModalTypeEnum): void {
-  //   const dialogRef = this.dialog.open(ResultModalComponent, {data: {type}});
-  //
-  //   dialogRef.afterClosed().pipe(take(1)).subscribe(() => {
-  //     switch (type) {
-  //       case ModalTypeEnum.success:
-  //         this.gameService.nextRound();
-  //         break;
-  //       case ModalTypeEnum.error:
-  //       case ModalTypeEnum.game_end:
-  //         this.gameService.startGame();
-  //         break;
-  //     }
-  //   });
-  // }
+  private openDialog(type: ModalTypeEnum): void {
+    this.dialogRef = this.dialog.open(ResultModalComponent, {data: {type, isAdmin: this.isAdmin}});
+
+    this.dialogRef.afterClosed().pipe(take(1)).subscribe(() => {
+      this.startGame();
+    });
+  }
+
   startGame(): void {
     this.websocketClient.setWord();
+    this.gameService.resetMistakes();
   }
 }
